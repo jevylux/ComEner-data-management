@@ -1,0 +1,24 @@
+{% extends "base.html" %} {% block content %}
+<h1>{{ title }}</h1>
+<form method="POST">
+  {{ form.hidden_tag() }}
+  <div class="mb-3">
+    {{ form.podlabel.label(class="form-label") }} {{
+    form.podlabel(class="form-control") }}
+  </div>
+  <div class="mb-3">
+    {{ form.podType.label(class="form-label") }} {{
+    form.podType(class="form-select") }}
+  </div>
+  <div class="mb-3">
+    {{ form.memberID.label(class="form-label") }} {{
+    form.memberID(class="form-select") }}
+  </div>
+  <div class="mb-3">
+    {{ form.podNumber.label(class="form-label") }} {{
+    form.podNumber(class="form-control") }}
+  </div>
+  <button type="submit" class="btn btn-primary">Submit</button>
+  <a href="{{ url_for('list_pods') }}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}

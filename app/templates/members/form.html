@@ -1,0 +1,112 @@
+{% extends "base.html" %} {% block content %}
+<h1>{{ title }}</h1>
+
+<h2>Member Information</h2>
+<form method="POST">
+  {{ member_form.hidden_tag() }}
+  <div class="mb-3">
+    {{ member_form.name.label(class="form-label") }} {{
+    member_form.name(class="form-control") }}
+  </div>
+  <div class="mb-3">
+    {{ member_form.firstname.label(class="form-label") }} {{
+    member_form.firstname(class="form-control") }}
+  </div>
+  <div class="mb-3">
+    {{ member_form.nationalId.label(class="form-label") }} {{
+    member_form.nationalId(class="form-control") }}
+  </div>
+  <div class="mb-3">
+    {{ member_form.address.label(class="form-label") }} {{
+    member_form.address(class="form-control") }}
+  </div>
+  <div class="mb-3">
+    {{ member_form.phoneNumber.label(class="form-label") }} {{
+    member_form.phoneNumber(class="form-control") }}
+  </div>
+  <div class="mb-3">
+    {{ member_form.email.label(class="form-label") }} {{
+    member_form.email(class="form-control") }}
+  </div>
+  <div class="mb-3">
+    {{ member_form.energyID.label(class="form-label") }} {{
+    member_form.energyID(class="form-control") }}
+  </div>
+  <button type="submit" name="member_submit" class="btn btn-primary">
+    Update Member
+  </button>
+  <a href="{{ url_for('list_members') }}" class="btn btn-secondary">Cancel</a>
+</form>
+
+<h2 class="mt-5">Manage Pods</h2>
+{% if member.pods %}
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Label</th>
+      <th>Type</th>
+      <th>Pod Number</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for pod in member.pods %}
+    <tr>
+      <td>{{ pod.podsID }}</td>
+      <td>{{ pod.podlabel }}</td>
+      <td>{{ pod.podType }}</td>
+      <td>{{ pod.podNumber }}</td>
+      <td>
+        <a
+          href="{{ url_for('detail_pod', id=pod.podsID) }}"
+          class="btn btn-info btn-sm"
+          >View</a
+        >
+        <form
+          action="{{ url_for('delete_member_pod', member_id=member.id, pod_id=pod.podsID) }}"
+          method="POST"
+          style="display: inline"
+        >
+          <button
+            type="submit"
+            class="btn btn-danger btn-sm"
+            onclick="return confirm('Are you sure?')"
+          >
+            Delete
+          </button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>No pods associated with this member.</p>
+{% endif %}
+
+<h3>Add New Pod</h3>
+<form method="POST">
+  {{ pod_form.hidden_tag() }}
+  <div class="mb-3">
+    {{ pod_form.podlabel.label(class="form-label") }} {{
+    pod_form.podlabel(class="form-control") }}
+  </div>
+  <div class="mb-3">
+    {{ pod_form.podType.label(class="form-label") }} {{
+    pod_form.podType(class="form-select") }}
+  </div>
+  <div class="mb-3">
+    {{ pod_form.memberID.label(class="form-label") }} : {{
+    pod_form.memberID(class="form-select")}}
+  </div>
+  <div class="mb-3">
+    {{ pod_form.podNumber.label(class="form-label") }} {{
+    pod_form.podNumber(class="form-control") }}
+  </div>
+  <button type="submit" name="pod_submit" class="btn btn-primary">
+    Add Pod
+  </button>
+  <a href="{{ url_for('list_members') }}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}

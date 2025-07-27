@@ -1,0 +1,13 @@
+{% extends "base.html" %} {% block content %}
+<h1>{{ title }}</h1>
+<h1>Pod Details</h1>
+<div class="card">
+  <div class="card-body">
+    <p class="card-text"><strong>Label:</strong> {{ pod.podlabel }}</p>
+    <p class="card-text"><strong>Type:</strong> {{ pod.type }}</p>
+    <p class="card-text"><strong>Member ID:</strong> {{ pod.memberID }}</p>
+    <p class="card-text"><strong>Pod Number:</strong> {{ pod.podNumber }}</p>
+  </div>
+  <a href="{{ url_for('list_pods') }}" class="btn btn-secondary">List Pods</a>
+  {% endblock %}
+</div>

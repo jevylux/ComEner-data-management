@@ -1,0 +1,47 @@
+{% extends "base.html" %} {% block content %}
+<h1>Member Fee Payment Details</h1>
+
+<div class="card mb-4">
+  <div class="card-body">
+    <h5 class="card-title">Member Fee Payment</h5>
+    <p class="card-text"><strong>ID:</strong> {{ member_fee_payment.mfpID }}</p>
+    <p class="card-text">
+      <strong>Member:</strong> {{ member.firstname }} {{ member.name }}
+    </p>
+    <p class="card-text">
+      <strong>Member Fee:</strong>
+      {{ member_fee.mfamount }} Eur - {{ member_fee.mfYear }}
+    </p>
+    <p class="card-text">
+      <strong>Payment Date:</strong> {{ member_fee_payment.paymentDate }}
+    </p>
+    <p class="card-text">
+      <strong>Payment Status:</strong> {{ member_fee_payment.paymentStatus }}
+    </p>
+    <a
+      href="{{ url_for('update_member_fee_payment', id=member_fee_payment.mfpID) }}"
+      class="btn btn-warning"
+      >Edit</a
+    >
+    <form
+      action="{{ url_for('delete_member_fee_payment', id=member_fee_payment.mfpID) }}"
+      method="POST"
+      style="display: inline"
+    >
+      <button
+        type="submit"
+        class="btn btn-danger"
+        onclick="return confirm('Are you sure?')"
+      >
+        Delete
+      </button>
+    </form>
+    <a
+      href="{{ url_for('list_member_fee_payments') }}"
+      class="btn btn-secondary"
+      >Back to List</a
+    >
+  </div>
+</div>
+
+{% endblock %}

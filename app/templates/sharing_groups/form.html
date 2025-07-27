@@ -1,0 +1,26 @@
+{% extends "base.html" %} {% block content %}
+<h1>{{ title }}</h1>
+<form method="POST">
+  {{ form.hidden_tag() }}
+  <div class="mb-3">
+    {{ form.sgName.label(class="form-label") }} {{
+    form.sgName(class="form-control") }}
+  </div>
+  <div class="mb-3">
+    {{ form.sgNumber.label(class="form-label") }} {{
+    form.sgNumber(class="form-control") }}
+  </div>
+  <div class="mb-3">
+    {{ form.sgType.label(class="form-label") }} {{
+    form.sgType(class="form-control") }}
+  </div>
+  <div class="mb-3">
+    {{ form.sgPrice.label(class="form-label") }} {{
+    form.sgPrice(class="form-control") }}
+  </div>
+  <button type="submit" class="btn btn-primary">Submit</button>
+  <a href="{{ url_for('list_sharing_groups') }}" class="btn btn-secondary"
+    >Cancel</a
+  >
+</form>
+{% endblock %}

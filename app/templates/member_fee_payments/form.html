@@ -1,0 +1,26 @@
+{% extends "base.html" %} {% block content %}
+<h1>{{ title }}</h1>
+<form method="POST">
+  {{ form.hidden_tag() }}
+  <div class="mb-3">
+    {{ form.memberID.label(class="form-label") }} {{
+    form.memberID(class="form-select") }}
+  </div>
+  <div class="mb-3">
+    {{ form.memberFeeID.label(class="form-label") }} {{
+    form.memberFeeID(class="form-select") }}
+  </div>
+  <div class="mb-3">
+    {{ form.paymentDate.label(class="form-label") }} {{
+    form.paymentDate(class="form-control") }}
+  </div>
+  <div class="mb-3">
+    {{ form.paymentStatus.label(class="form-label") }} {{
+    form.paymentStatus(class="form-select") }}
+  </div>
+  <button type="submit" class="btn btn-primary">Submit</button>
+  <a href="{{ url_for('list_member_fee_payments') }}" class="btn btn-secondary"
+    >Cancel</a
+  >
+</form>
+{% endblock %}

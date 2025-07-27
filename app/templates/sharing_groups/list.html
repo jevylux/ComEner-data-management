@@ -1,0 +1,54 @@
+{% extends "base.html" %} {% block content %}
+<h1>Sharing Groups</h1>
+<a href="{{ url_for('create_sharing_group') }}" class="btn btn-primary mb-3"
+  >Create New Sharing Group</a
+>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Name</th>
+      <th>Number</th>
+      <th>Type</th>
+      <th>Price</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for sharing_group in sharing_groups %}
+    <tr>
+      <td>{{ sharing_group.sgID }}</td>
+      <td>{{ sharing_group.sgName }}</td>
+      <td>{{ sharing_group.sgNumber }}</td>
+      <td>{{ sharing_group.sgType }}</td>
+      <td>{{ sharing_group.sgPrice }}</td>
+      <td>
+        <a
+          href="{{ url_for('detail_sharing_group', id=sharing_group.sgID) }}"
+          class="btn btn-info btn-sm"
+          >View</a
+        >
+        <a
+          href="{{ url_for('update_sharing_group', id=sharing_group.sgID) }}"
+          class="btn btn-warning btn-sm"
+          >Edit</a
+        >
+        <form
+          action="{{ url_for('delete_sharing_group', id=sharing_group.sgID) }}"
+          method="POST"
+          style="display: inline"
+        >
+          <button
+            type="submit"
+            class="btn btn-danger btn-sm"
+            onclick="return confirm('Are you sure?')"
+          >
+            Delete
+          </button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

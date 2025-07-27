@@ -1,0 +1,93 @@
+{% extends "base.html" %} {% block content %}
+<h1>Sharing Group Details</h1>
+
+<div class="card mb-4">
+  <div class="card-body">
+    <h5 class="card-title">{{ sharing_group.sgName }}</h5>
+    <p class="card-text"><strong>ID:</strong> {{ sharing_group.sgID }}</p>
+    <p class="card-text">
+      <strong>Number:</strong> {{ sharing_group.sgNumber }}
+    </p>
+    <p class="card-text"><strong>Type:</strong> {{ sharing_group.sgType }}</p>
+    <p class="card-text">
+      <strong>Price:</strong> {{ sharing_group.sgPrice }} €/kWh
+    </p>
+    <a
+      href="{{ url_for('update_sharing_group', id=sharing_group.sgID) }}"
+      class="btn btn-warning"
+      >Edit</a
+    >
+    <form
+      action="{{ url_for('delete_sharing_group', id=sharing_group.sgID) }}"
+      method="POST"
+      style="display: inline"
+    >
+      <button
+        type="submit"
+        class="btn btn-danger"
+        onclick="return confirm('Are you sure?')"
+      >
+        Delete
+      </button>
+    </form>
+    <a href="{{ url_for('list_sharing_groups') }}" class="btn btn-secondary"
+      >Back to List</a
+    >
+  </div>
+</div>
+
+<!-- Associated Pods Section -->
+<div class="card">
+  <div class="card-header">
+    <h3>Associated Pods</h3>
+  </div>
+  <div class="card-body">
+    {% if sharing_group_pods %}
+    <div class="row">
+      {% for record in sharing_group_pods %}
+      <div class="col-md-6 mb-3">
+        <div class="card border-secondary">
+          <div class="card-body">
+            <h6 class="card-title">
+              <span class="badge badge-primary me-2"
+                >{{ record.pod_detail.podType }}</span
+              >
+              {{ record.pod_detail.podlabel }}
+            </h6>
+            <p class="card-text mb-1">
+              <strong>Pod ID:</strong> {{ record.pod_detail.podsID }}
+            </p>
+            <p class="card-text mb-1">
+              <strong>Pod Number:</strong> {{ record.pod_detail.podNumber }}
+            </p>
+            <p class="card-text mb-1">
+              <strong>Member:</strong>
+              {{ record.pod_detail.member.firstname }} {{
+              record.pod_detail.member.name }}
+            </p>
+            <p class="card-text mb-1">
+              <strong>Member ID:</strong> {{ record.pod_detail.member.id }}
+            </p>
+            {% if record.pod_detail.member.email %}
+            <p class="card-text mb-1">
+              <strong>Email:</strong> {{ record.pod_detail.member.email }}
+            </p>
+            {% endif %} {% if record.pod_detail.member.phoneNumber %}
+            <p class="card-text mb-1">
+              <strong>Phone:</strong> {{ record.pod_detail.member.phoneNumber }}
+            </p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info" role="alert">
+      <i class="fas fa-info-circle me-2"></i>
+      No pods are currently associated with this sharing group.
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

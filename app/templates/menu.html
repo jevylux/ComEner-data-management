@@ -1,0 +1,9 @@
+{% extends "base.html" %} {% block content %} 
+<nav>
+    <a href="{{url_for("list_members")}}">Members</a>
+    <a href="{{url_for("list_pods")}}">PODS</a>
+    <a href="{{url_for("list_sharing_groups")}}">Sharing Groups</a>
+    <a href="{{url_for("list_member_fees")}}">Member Fees</a>
+    <a href="{{url_for("list_accounting")}}">Accounting</a>
+</nav>
+{% endblock %}

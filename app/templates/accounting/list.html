@@ -1,0 +1,56 @@
+{% extends "base.html" %} {% block content %}
+<h1>Accounting Records</h1>
+<a href="{{ url_for('create_accounting') }}" class="btn btn-primary mb-3"
+  >Create New Accounting Record</a
+>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Year</th>
+      <th>Month</th>
+      <th>Member</th>
+      <th>Pod</th>
+      <th>Amount</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for accounting in accounting_records %}
+    <tr>
+      <td>{{ accounting.accID }}</td>
+      <td>{{ accounting.accYear }}</td>
+      <td>{{ accounting.accMonth }}</td>
+      <td>{{ accounting.member.firstname }} {{ accounting.member.name }}</td>
+      <td>{{ accounting.pod.podlabel }} {{ accounting.pod.podNumber }}</td>
+      <td>{{ accounting.accAmount }}</td>
+      <td>
+        <a
+          href="{{ url_for('detail_accounting', id=accounting.accID) }}"
+          class="btn btn-info btn-sm"
+          >View</a
+        >
+        <a
+          href="{{ url_for('update_accounting', id=accounting.accID) }}"
+          class="btn btn-warning btn-sm"
+          >Edit</a
+        >
+        <form
+          action="{{ url_for('delete_accounting', id=accounting.accID) }}"
+          method="POST"
+          style="display: inline"
+        >
+          <button
+            type="submit"
+            class="btn btn-danger btn-sm"
+            onclick="return confirm('Are you sure?')"
+          >
+            Delete
+          </button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

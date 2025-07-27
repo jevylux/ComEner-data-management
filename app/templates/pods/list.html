@@ -1,0 +1,54 @@
+{% extends "base.html" %} {% block content %}
+<h1>Pods</h1>
+<a href="{{ url_for('create_pod') }}" class="btn btn-primary mb-3"
+  >Create New Pod</a
+>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Label</th>
+      <th>Type</th>
+      <th>Member</th>
+      <th>Pod Number</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for pod in pods %}
+    <tr>
+      <td>{{ pod.podsID }}</td>
+      <td>{{ pod.podlabel }}</td>
+      <td>{{ pod.podType }}</td>
+      <td>{{ pod.member.firstname }} {{ pod.member.name }}</td>
+      <td>{{ pod.podNumber }}</td>
+      <td>
+        <a
+          href="{{ url_for('detail_pod', id=pod.podsID) }}"
+          class="btn btn-info btn-sm"
+          >View</a
+        >
+        <a
+          href="{{ url_for('update_pod', id=pod.podsID) }}"
+          class="btn btn-warning btn-sm"
+          >Edit</a
+        >
+        <form
+          action="{{ url_for('delete_pod', id=pod.podsID) }}"
+          method="POST"
+          style="display: inline"
+        >
+          <button
+            type="submit"
+            class="btn btn-danger btn-sm"
+            onclick="return confirm('Are you sure?')"
+          >
+            Delete
+          </button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

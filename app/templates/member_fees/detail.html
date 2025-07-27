@@ -1,0 +1,131 @@
+{% extends "base.html" %} {% block content %}
+<h1>Member Fee Details</h1>
+
+<div class="card mb-4">
+  <div class="card-body">
+    <h5 class="card-title">Member Fee {{ member_fee.mfID }}</h5>
+    <p class="card-text"><strong>ID:</strong> {{ member_fee.mfID }}</p>
+    <p class="card-text"><strong>Amount:</strong> {{ member_fee.mfamount }}</p>
+    <p class="card-text"><strong>Year:</strong> {{ member_fee.mfYear }}</p>
+
+    <a
+      href="{{ url_for('update_member_fee', id=member_fee.mfID) }}"
+      class="btn btn-warning"
+      >Edit</a
+    >
+    <form
+      action="{{ url_for('delete_member_fee', id=member_fee.mfID) }}"
+      method="POST"
+      style="display: inline"
+    >
+      <button
+        type="submit"
+        class="btn btn-danger"
+        onclick="return confirm('Are you sure?')"
+      >
+        Delete
+      </button>
+    </form>
+    <a href="{{ url_for('list_member_fees') }}" class="btn btn-secondary"
+      >Back to List</a
+    >
+  </div>
+</div>
+
+<!-- Members who have paid -->
+<div class="card mb-4">
+  <div class="card-header">
+    <h5 class="mb-0">Members Who Have Paid ({{ paid_payments|length }})</h5>
+  </div>
+  <div class="card-body">
+    {% if paid_payments %}
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Member Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Payment Date</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for payment, member in paid_payments %}
+          <tr>
+            <td>{{ member.firstname }} {{ member.name }}</td>
+            <td>{{ member.email or 'N/A' }}</td>
+            <td>{{ member.phoneNumber or 'N/A' }}</td>
+            <td>
+              {{ payment.paymentDate.strftime('%Y-%m-%d') if payment.paymentDate
+              else 'N/A' }}
+            </td>
+            <td>
+              <span class="badge bg-success"
+                >{{ payment.paymentStatus.title() }}</span
+              >
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="text-muted">No members have paid this fee yet.</p>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Members with pending/overdue payments -->
+<div class="card">
+  <div class="card-header">
+    <h5 class="mb-0">
+      Pending/Overdue Payments ({{ pending_payments|length }})
+    </h5>
+  </div>
+  <div class="card-body">
+    {% if pending_payments %}
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Member Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Payment Date</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for payment, member in pending_payments %}
+          <tr>
+            <td>{{ member.firstname }} {{ member.name }}</td>
+            <td>{{ member.email or 'N/A' }}</td>
+            <td>{{ member.phoneNumber or 'N/A' }}</td>
+            <td>
+              {{ payment.paymentDate.strftime('%Y-%m-%d') if payment.paymentDate
+              else 'N/A' }}
+            </td>
+            <td>
+              {% if payment.paymentStatus == 'pending' %}
+              <span class="badge bg-warning"
+                >{{ payment.paymentStatus.title() }}</span
+              >
+              {% else %}
+              <span class="badge bg-danger"
+                >{{ payment.paymentStatus.title() }}</span
+              >
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="text-muted">No pending or overdue payments.</p>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}

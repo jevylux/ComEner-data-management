@@ -1,0 +1,118 @@
+{% extends "base.html" %} {% block content %}
+<h1>Member Details</h1>
+<div class="card">
+  <div class="card-body">
+    <h5 class="card-title">{{ member.firstname }} {{ member.name }}</h5>
+    <p class="card-text"><strong>ID:</strong> {{ member.id }}</p>
+    <p class="card-text">
+      <strong>National ID:</strong> {{ member.nationalId }}
+    </p>
+    <p class="card-text"><strong>Address:</strong> {{ member.address }}</p>
+    <p class="card-text">
+      <strong>Phone Number:</strong> {{ member.phoneNumber }}
+    </p>
+    <p class="card-text"><strong>Email:</strong> {{ member.email }}</p>
+    <p class="card-text"><strong>Energy ID:</strong> {{ member.energyID }}</p>
+
+    <h6 class="mt-4">Pods</h6>
+    {% if member.pods %}
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Label</th>
+          <th>Type</th>
+          <th>Pod Number</th>
+          <th>Sharing Groups</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for pod in member.pods %}
+        <tr>
+          <td>{{ pod.podsID }}</td>
+          <td>{{ pod.podlabel }}</td>
+          <td>{{ pod.podType }}</td>
+          <td>{{ pod.podNumber }}</td>
+          <td>
+            {% for psg in pod.sharing_groups %}
+            <a
+              href="{{ url_for('detail_sharing_group', id=psg.sharing_group.sgID) }}"
+              >{{ psg.sharing_group.sgName }}</a
+            >{% if not loop.last %}, {% endif %} {% else %} None {% endfor %}
+          </td>
+          <td>
+            <a
+              href="{{ url_for('detail_pod', id=pod.podsID) }}"
+              class="btn btn-info btn-sm"
+              >View</a
+            >
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p>No pods associated with this member.</p>
+    {% endif %}
+
+    <h6 class="mt-4">Member Fee Payments</h6>
+    {% if member.member_fee_payments %}
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Fee Year</th>
+          <th>Amount</th>
+          <th>Payment Date</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for payment in member.member_fee_payments %}
+        <tr>
+          <td>{{ payment.mfpID }}</td>
+          <td>{{ payment.member_fee.mfYear }}</td>
+          <td>{{ payment.member_fee.mfamount }}</td>
+          <td>{{ payment.paymentDate }}</td>
+          <td>{{ payment.paymentStatus }}</td>
+          <td>
+            <a
+              href="{{ url_for('detail_member_fee_payment', id=payment.mfpID) }}"
+              class="btn btn-info btn-sm"
+              >View</a
+            >
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p>No fee payments associated with this member.</p>
+    {% endif %}
+
+    <a
+      href="{{ url_for('update_member', id=member.id) }}"
+      class="btn btn-warning mt-3"
+      >Edit</a
+    >
+    <form
+      action="{{ url_for('delete_member', id=member.id) }}"
+      method="POST"
+      style="display: inline"
+    >
+      <button
+        type="submit"
+        class="btn btn-danger mt-3"
+        onclick="return confirm('Are you sure?')"
+      >
+        Delete
+      </button>
+    </form>
+    <a href="{{ url_for('list_members') }}" class="btn btn-secondary mt-3"
+      >Back to List</a
+    >
+  </div>
+</div>
+{% endblock %}

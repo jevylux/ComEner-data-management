@@ -1,0 +1,41 @@
+{% extends "base.html" %} {% block content %}
+<h1>Accounting Record Details</h1>
+<div class="card">
+  <div class="card-body">
+    <h5 class="card-title">Accounting {{ accounting.accID }}</h5>
+    <p class="card-text"><strong>ID:</strong> {{ accounting.accID }}</p>
+    <p class="card-text"><strong>Year:</strong> {{ accounting.accYear }}</p>
+    <p class="card-text"><strong>Month:</strong> {{ accounting.accMonth }}</p>
+    <p class="card-text">
+      <strong>Member:</strong> {{ accounting.member.firstname }} {{
+      accounting.member.name }}
+    </p>
+    <p class="card-text">
+      <strong>Pod:</strong> {{ accounting.accPod.Label }} - {{
+      accounting.accPod.Number }}
+    </p>
+    <p class="card-text"><strong>Amount:</strong> {{ accounting.accAmount }}</p>
+    <a
+      href="{{ url_for('update_accounting', id=accounting.accID) }}"
+      class="btn btn-warning"
+      >Edit</a
+    >
+    <form
+      action="{{ url_for('delete_accounting', id=accounting.accID) }}"
+      method="POST"
+      style="display: inline"
+    >
+      <button
+        type="submit"
+        class="btn btn-danger"
+        onclick="return confirm('Are you sure?')"
+      >
+        Delete
+      </button>
+    </form>
+    <a href="{{ url_for('list_accounting') }}" class="btn btn-secondary"
+      >Back to List</a
+    >
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,83 @@
+CREATE TABLE "accounting" (
+	"accID"	INTEGER,
+	"accYear"	INTEGER,
+	"accMonth"	INTEGER,
+	"accMember"	INTEGER,
+	"accAmount"	NUMERIC,
+	"accPod"	TEXT,
+	PRIMARY KEY("accID"),
+	UNIQUE("accYear","accMonth","accMember"),
+	FOREIGN KEY("accMember") REFERENCES "members"("id"),
+	FOREIGN KEY("accPod") REFERENCES "pods"("podNumber")
+)
+CREATE TABLE "memberFeePayment" (
+	"mfpID"	INTEGER,
+	"memberID"	INTEGER,
+	"memberFeeID"	INTEGER,
+	"paymentDate"	DATE,
+	"paymentStatus"	TEXT DEFAULT 'pending', -- 'pending', 'paid', 'overdue'
+	PRIMARY KEY("mfpID"),
+	FOREIGN KEY("memberID") REFERENCES "members"("id"),
+	FOREIGN KEY("memberFeeID") REFERENCES "memberfee"("mfID"),
+	-- Ensure each member has only one payment record per fee year
+	UNIQUE("memberID", "memberFeeID")
+)
+
+CREATE TABLE "memberfee" (
+	"mfID"	INTEGER,
+	"mfamount"	NUMERIC,
+	"mfYear"	INTEGER,
+	PRIMARY KEY("mfID")
+)
+CREATE TABLE "members" (
+	"id"	INTEGER,
+	"name"	TEXT,
+	"Firstname"	TEXT,
+	"nationalId"	TEXT,
+	"address"	TEXT,
+	"phoneNumber"	TEXT,
+	"email"	TEXT,
+	"energyID"	TEXT,
+	PRIMARY KEY("id")
+)
+
+CREATE TABLE "podSharingGroup" (
+	"msgID"	INTEGER,
+	"podID"	INTEGER,
+	"sharingGroupID"	INTEGER,
+	PRIMARY KEY("msgID"),
+	UNIQUE("podID","sharingGroupID"),
+	FOREIGN KEY("podID") REFERENCES "members"("id"),
+	FOREIGN KEY("sharingGroupID") REFERENCES "sharingGroup"("sgID")
+)
+
+CREATE TABLE "pods" (
+	"podsID"	INTEGER,
+	"podlabel"	TEXT,
+	"podType"	TEXT CHECK("podType" IN ('Production', 'Consumption')),
+	"memberID"	INTEGER,
+	"podNumber"	TEXT,
+	PRIMARY KEY("podsID"),
+	FOREIGN KEY("memberID") REFERENCES "members"("id")
+)
+
+CREATE TABLE "sharingGroup" (
+	"sgID"	INTEGER,
+	"sgName"	TEXT,
+	"sgNumber"	TEXT,
+	"sgPrice"	REAL,
+	"sgType"	TEXT,
+	PRIMARY KEY("sgID")
+)
+
+CREATE INDEX "idx_memberFeePayment_member" ON "memberFeePayment"("memberID")
+CREATE INDEX "idx_memberFeePayment_year" ON "memberFeePayment"("memberFeeID")
+CREATE INDEX "idx_memberSharingGroup_group" ON "podSharingGroup"("sharingGroupID")
+CREATE INDEX "idx_memberSharingGroup_member" ON "podSharingGroup"("podID")
+CREATE INDEX "idx_pods_member" ON "pods"("memberID")
+CREATE INDEX "idx_pods_number" ON "pods" (
+	"podNumber"
+)
+
+
+

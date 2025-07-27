@@ -1,0 +1,62 @@
+{% extends "base.html" %} {% block content %}
+<h1>Member Fee Payments</h1>
+<a
+  href="{{ url_for('create_member_fee_payment') }}"
+  class="btn btn-primary mb-3"
+  >Create New Member Fee Payment</a
+>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Member</th>
+      <th>Fee</th>
+      <th>Payment Date</th>
+      <th>Status</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for member_fee_payment in member_fee_payments %}
+    <tr>
+      <td>{{ member_fee_payment.mfpID }}</td>
+      <td>
+        {{ member_fee_payment.member.firstname }} {{
+        member_fee_payment.member.name }}
+      </td>
+      <td>
+        {{ member_fee_payment.member_fee.mfYear }} - {{
+        member_fee_payment.member_fee.mfamount }}
+      </td>
+      <td>{{ member_fee_payment.paymentDate }}</td>
+      <td>{{ member_fee_payment.paymentStatus }}</td>
+      <td>
+        <a
+          href="{{ url_for('detail_member_fee_payment', id=member_fee_payment.mfpID) }}"
+          class="btn btn-info btn-sm"
+          >View</a
+        >
+        <a
+          href="{{ url_for('update_member_fee_payment', id=member_fee_payment.mfpID) }}"
+          class="btn btn-warning btn-sm"
+          >Edit</a
+        >
+        <form
+          action="{{ url_for('delete_member_fee_payment', id=member_fee_payment.mfpID) }}"
+          method="POST"
+          style="display: inline"
+        >
+          <button
+            type="submit"
+            class="btn btn-danger btn-sm"
+            onclick="return confirm('Are you sure?')"
+          >
+            Delete
+          </button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

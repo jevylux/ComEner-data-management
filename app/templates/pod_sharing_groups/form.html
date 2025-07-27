@@ -1,0 +1,18 @@
+{% extends "base.html" %} {% block content %}
+<h1>{{ title }}</h1>
+<form method="POST">
+  {{ form.hidden_tag() }}
+  <div class="mb-3">
+    {{ form.podID.label(class="form-label") }} {{
+    form.podID(class="form-select") }}
+  </div>
+  <div class="mb-3">
+    {{ form.sharingGroupID.label(class="form-label") }} {{
+    form.sharingGroupID(class="form-select") }}
+  </div>
+  <button type="submit" class="btn btn-primary">Submit</button>
+  <a href="{{ url_for('list_pod_sharing_groups') }}" class="btn btn-secondary"
+    >Cancel</a
+  >
+</form>
+{% endblock %}
