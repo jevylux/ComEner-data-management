@@ -11,10 +11,19 @@
       accounting.member.name }}
     </p>
     <p class="card-text">
-      <strong>Pod:</strong> {{ accounting.accPod.Label }} - {{
-      accounting.accPod.Number }}
+      <strong>Pod:</strong> {{ accounting.pod.podlabel }} - {{
+      accounting.pod.podNumber }}
     </p>
+    <p class="card-text">
+      <strong>Sharing Group:</strong> {{ accounting.sharingGroup.sgName }}
+    </p>
+
     <p class="card-text"><strong>Amount:</strong> {{ accounting.accAmount }}</p>
+    <p class="card-text">
+      <strong>Billing Date:</strong> {% if accounting.accBillingDate %} {{
+      accounting.accBillingDate.strftime('%Y-%m-%d') }} {% else %} Not specified
+      {% endif %}
+    </p>
     <a
       href="{{ url_for('update_accounting', id=accounting.accID) }}"
       class="btn btn-warning"

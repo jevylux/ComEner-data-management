@@ -1,10 +1,13 @@
 {% extends "base.html" %} {% block content %}
-<h1>Accounting Records</h1>
-<a href="{{ url_for('create_accounting') }}" class="btn btn-primary mb-3"
-  >Create New Accounting Record</a
+<h1>Unbilled Accounting Records</h1>
+<a href="{{ url_for('create_billing_file') }}" class="btn btn-primary mb-3"
+  >Create Billing File</a
 >
-<a href="{{ url_for('list_accounting_unbilled') }}" class="btn btn-primary mb-3"
-  >List unbilled Accounting Records</a
+<a href="{{ url_for('list_accounting') }}" class="btn btn-primary mb-3"
+  >Return to Accounting List</a
+>
+<a href="{{ url_for('file_list') }}" class="btn btn-primary mb-3"
+  >Accounting files</a
 >
 <table class="table table-striped">
   <thead>

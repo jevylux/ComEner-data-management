@@ -11,6 +11,8 @@
       <th>Type</th>
       <th>Member</th>
       <th>Pod Number</th>
+      <th>Energy Production (kwpeak)</th>
+      <th>Energy Storage (kwH)</th>
       <th>Actions</th>
     </tr>
   </thead>
@@ -22,6 +24,8 @@
       <td>{{ pod.podType }}</td>
       <td>{{ pod.member.firstname }} {{ pod.member.name }}</td>
       <td>{{ pod.podNumber }}</td>
+      <td>{{ pod.energyproduction }}</td>
+      <td>{{ pod.energystorage }}</td>
       <td>
         <a
           href="{{ url_for('detail_pod', id=pod.podsID) }}"

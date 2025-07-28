@@ -7,6 +7,12 @@
     <p class="card-text"><strong>Type:</strong> {{ pod.type }}</p>
     <p class="card-text"><strong>Member ID:</strong> {{ pod.memberID }}</p>
     <p class="card-text"><strong>Pod Number:</strong> {{ pod.podNumber }}</p>
+    <p class="card-text">
+      <strong>Energy Production (kwpeak):</strong> {{ pod.energyproduction }}
+    </p>
+    <p class="card-text">
+      <strong>Energy Storage (kwH):</strong> {{ pod.energystorage }}
+    </p>
   </div>
   <a href="{{ url_for('list_pods') }}" class="btn btn-secondary">List Pods</a>
   {% endblock %}

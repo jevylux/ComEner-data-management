@@ -1,0 +1,50 @@
+{% extends "base.html" %} {% block content %}
+<h1>Billing Report</h1>
+<a href="{{ url_for('list_accounting_unbilled') }}" class="btn btn-primary mb-3"
+  >Return to unbilled accounting List</a
+>
+<div class="mb-3">
+  <h4>
+    Diff in/out:
+    <span class="text-success">{{ "%.2f"|format(grandtotal) }} EUR</span>
+  </h4>
+</div>
+<div class="mb-3">
+  <h4>
+    Download generated file {{ filename }}:
+    <a href="{{ url_for('download_file', filename=filename) }}">Download</a>
+  </h4>
+</div>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Member ID</th>
+      <th>Name</th>
+      <th>Firstname</th>
+      <th>Outstanding Amount</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for billing in billing_data %}
+    <tr>
+      <td>{{ billing.member_id }}</td>
+      <td>{{ billing.name }}</td>
+      <td>{{ billing.firstname }}</td>
+      <td class="text-end">{{ "%.2f"|format(billing.total_amount) }} EUR</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+  <tfoot>
+    <tr class="table-dark">
+      <th colspan="3" class="text-end">Diff In/Out:</th>
+      <th class="text-end">{{ "%.2f"|format(grandtotal) }} EUR</th>
+    </tr>
+  </tfoot>
+</table>
+
+{% if billing_data|length == 0 %}
+<div class="alert alert-info">
+  <p>No outstanding billing amounts found.</p>
+</div>
+{% endif %} {% endblock %}

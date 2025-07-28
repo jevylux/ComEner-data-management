@@ -27,8 +27,19 @@ class Pod(db.Model):
     podType = db.Column(db.String(20), nullable=False)  # 'Production' or 'Consumption'
     memberID = db.Column(db.Integer, db.ForeignKey('members.id'), nullable=False)
     podNumber = db.Column(db.String(50))
+    energyproduction = db.Column(db.Numeric(10, 2))
+    energystorage = db.Column(db.Numeric(10, 2))
+
     sharing_groups = db.relationship('PodSharingGroup', backref='pod', lazy=True)
     accounting_records_pod = db.relationship('Accounting', backref='pod', lazy=True)
+    # esou funktioneiert dat
+    '''
+    The key part is backref='pod'. This creates a reverse relationship on the Accounting model, so:
+
+From Pod → Accounting: pod.accounting_records_pod (gives you all accounting records for this pod)
+From Accounting → Pod: accounting.pod (gives you the pod for this accounting record)
+
+'''
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -46,6 +57,7 @@ class SharingGroup(db.Model):
     sgPrice = db.Column(db.Numeric(10, 2))
     sgType = db.Column(db.String(20), nullable=False)  # 'Production'
     pods = db.relationship('PodSharingGroup', backref='sharing_group', lazy=True)
+    accounting_records_sharing_group = db.relationship('Accounting', backref='sharingGroup', lazy=True)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -100,8 +112,16 @@ class Accounting(db.Model):
     accMember = db.Column(db.Integer, db.ForeignKey('members.id'), nullable=False)
     accPod = db.Column(db.Integer, db.ForeignKey('pods.podsID'), nullable=False)
     accAmount = db.Column(db.Numeric(10, 2))
+    accBillingDate = db.Column(db.Date, default=date.today) 
+    accSGId = db.Column(db.Integer, db.ForeignKey('sharingGroup.sgID'), nullable=False)
+    # Relationships
+    '''
+    accMember = db.relationship('Member', backref='accountings')
+    accSharingGroup = db.relationship('SharingGroup', backref='accountings')
+    Pod = db.relationship('Pod', backref='accountings')
+    '''
     __table_args__ = (
-        db.UniqueConstraint('accYear', 'accMonth', 'accMember', 'accPod', name='uix_accounting'),
+        db.UniqueConstraint('accYear', 'accMonth', 'accMember', 'accPod', 'accSGId', name='uix_accounting'),
     )
 
     def __repr__(self):

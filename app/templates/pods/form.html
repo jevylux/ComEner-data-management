@@ -18,6 +18,14 @@
     {{ form.podNumber.label(class="form-label") }} {{
     form.podNumber(class="form-control") }}
   </div>
+  <div class="mb-3">
+    {{ form.energyproduction.label(class="form-label") }} {{
+    form.energyproduction(class="form-control") }}
+  </div>
+  <div class="mb-3">
+    {{ form.energystorage.label(class="form-label") }} {{
+    form.energystorage(class="form-control") }}
+  </div>
   <button type="submit" class="btn btn-primary">Submit</button>
   <a href="{{ url_for('list_pods') }}" class="btn btn-secondary">Cancel</a>
 </form>

@@ -1,10 +1,13 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
+from sqlalchemy import update, func
 from wtforms import StringField, SelectField, FloatField, IntegerField, TextAreaField, DateField
 from wtforms.validators import DataRequired, Email, AnyOf, Optional
 from models import db, Member, Pod, SharingGroup, PodSharingGroup, MemberFee, MemberFeePayment, Accounting
-from datetime import date
+from datetime import date, datetime, time
+import os
+import csv
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////Users/marcdurbach/Development/python/ComEner-data-management/database/commEnergy.db'
@@ -27,6 +30,8 @@ class PodForm(FlaskForm):
     podType = SelectField('Pod Type', choices=[('Production', 'Production'), ('Consumption', 'Consumption')], validators=[DataRequired()])
     memberID = SelectField('Member', coerce=int, validators=[DataRequired()])
     podNumber = StringField('Pod Number', validators=[Optional()])
+    energyproduction = FloatField('Energy Production', validators=[Optional()])
+    energystorage = FloatField('Energy Storage', validators=[Optional()])
 
 class SharingGroupForm(FlaskForm):
     sgName = StringField('Sharing Group Name', validators=[Optional()])
@@ -52,8 +57,10 @@ class AccountingForm(FlaskForm):
     accYear = IntegerField('Year', validators=[DataRequired()])
     accMonth = IntegerField('Month', validators=[DataRequired()])
     accMember = SelectField('Member', coerce=int, validators=[DataRequired()])
-    accPod = SelectField('Pod', coerce=str, validators=[DataRequired()])
+    accPod = SelectField('Pod', coerce=int, validators=[DataRequired()])
     accAmount = FloatField('Amount', validators=[Optional()])
+    accBillingDate = DateField('Billing Date', default=date.today, validators=[Optional()])
+    accSGId = SelectField('Sharing Group', coerce=int, validators=[DataRequired()]) 
 
 # Routes for Members
 @app.route('/members')
@@ -114,7 +121,9 @@ def update_member(id):
                 podlabel=pod_form.podlabel.data,
                 podType=pod_form.podType.data,
                 memberID=pod_form.memberID.data,
-                podNumber=pod_form.podNumber.data
+                podNumber=pod_form.podNumber.data,
+                energyproduction=pod_form.energyproduction.data,
+                energystorage=pod_form.energystorage.data
             )
             print(pod)
             db.session.add(pod)
@@ -158,7 +167,9 @@ def create_pod():
             podlabel=form.podlabel.data,
             podType=form.podType.data,
             memberID=form.memberID.data,
-            podNumber=form.podNumber.data
+            podNumber=form.podNumber.data,
+            energyproduction=form.energyproduction.data,
+            energystorage=form.energystorage.data
         )
         db.session.add(pod)
         db.session.commit()
@@ -181,6 +192,8 @@ def update_pod(id):
         pod.podType = form.podType.data
         pod.memberID = form.memberID.data
         pod.podNumber = form.podNumber.data
+        pod.energyproduction = form.energyproduction.data
+        pod.energystorage = form.energystorage.data
         print("trying to commit returns ",db.session.commit())
         #db.session.commit()
         flash('Pod updated successfully!', 'success')
@@ -436,8 +449,10 @@ def delete_member_fee_payment(id):
 def list_accounting():
     accounting_records = Accounting.query.options(
         db.joinedload(Accounting.member),
-        db.joinedload(Accounting.pod)
+        db.joinedload(Accounting.pod),
+        db.joinedload(Accounting.sharingGroup)
     ).all()
+    
     for record in accounting_records:
         print(f"Record ID: {record.accID}")
         print(f"Member ID: {record.accMember}")
@@ -459,6 +474,7 @@ def list_accounting():
             print(f"Error accessing pod: {e}")
 
         print("---")
+        
     return render_template('accounting/list.html', accounting_records=accounting_records)
 
 @app.route('/accounting/new', methods=['GET', 'POST'])
@@ -466,14 +482,18 @@ def create_accounting():
     form = AccountingForm()
     form.accMember.choices = [(m.id, f"{m.firstname} {m.name}") for m in Member.query.all()]
     form.accPod.choices = [(p.podsID, f"{p.podlabel} {p.podNumber}") for p in Pod.query.all()]
-
+    form.accSGId.choices = [(sg.sgID, sg.sgName) for sg in SharingGroup.query.all()]
+    flash(form.validate_on_submit())
+    flash(form.errors)
     if form.validate_on_submit():
         accounting = Accounting(
             accYear=form.accYear.data,
             accMonth=form.accMonth.data,
             accMember=form.accMember.data,
             accPod=form.accPod.data,
-            accAmount=form.accAmount.data
+            accSGId=form.accSGId.data,
+            accAmount=form.accAmount.data,
+            accBillingDate=form.accBillingDate.data
         )
         db.session.add(accounting)
         db.session.commit()
@@ -483,8 +503,20 @@ def create_accounting():
 
 @app.route('/accounting/<int:id>')
 def detail_accounting(id):
-    accounting = Accounting.query.get_or_404(id)
+    accounting = Accounting.query.options(
+        db.joinedload(Accounting.member),
+        db.joinedload(Accounting.pod),
+        db.joinedload(Accounting.sharingGroup)
+    ).filter(Accounting.accID == id).first()
+
+    print(accounting.accMember)
+    print(accounting.accPod)
+    print(accounting.accSGId)
+    print(f"Member: {accounting.member.firstname} {accounting.member.name}")
+    print(f"Pod: {accounting.pod.podlabel} - {accounting.pod.podNumber}")
+    print(f"Sharing Group: {accounting.sharingGroup.sgName}")
     return render_template('accounting/detail.html', accounting=accounting)
+    
 
 @app.route('/accounting/<int:id>/edit', methods=['GET', 'POST'])
 def update_accounting(id):
@@ -492,12 +524,16 @@ def update_accounting(id):
     form = AccountingForm(obj=accounting)
     form.accMember.choices = [(m.id, f"{m.firstname} {m.name}") for m in Member.query.all()]
     form.accPod.choices = [(p.podsID, f"{p.podlabel} {p.podNumber}") for p in Pod.query.all()]
+    form.accSGId.choices = [(sg.sgID, sg.sgName) for sg in SharingGroup.query.all()]
+
     if form.validate_on_submit():
         accounting.accYear = form.accYear.data
         accounting.accMonth = form.accMonth.data
         accounting.accMember = form.accMember.data
         accounting.accPod = form.accPod.data
+        accounting.accSGId = form.accSGId.data
         accounting.accAmount = form.accAmount.data
+        accounting.accBillingDate = form.accBillingDate.data
         db.session.commit()
         flash('Accounting record updated successfully!', 'success')
         return redirect(url_for('detail_accounting', id=accounting.accID))
@@ -510,6 +546,131 @@ def delete_accounting(id):
     db.session.commit()
     flash('Accounting record deleted successfully!', 'success')
     return redirect(url_for('list_accounting'))
+
+@app.route('/accounting/unbilled')
+def list_accounting_unbilled():
+    accounting_records = Accounting.query.options(
+    db.joinedload(Accounting.member),
+    db.joinedload(Accounting.pod),
+    db.joinedload(Accounting.sharingGroup)
+    ).filter(Accounting.accBillingDate.is_(None)).all()
+    '''
+    for record in accounting_records:
+        print(f"Record ID: {record.accID}")
+        print(f"Member ID: {record.accMember}")
+        print(f"Pod ID: {record.accPod}")
+        
+        # Test member relationship
+        try:
+            print(f"Member: {record.member}")
+            print(f"Member name: {record.member.name} {record.member.firstname}")
+        except Exception as e:
+            print(f"Error accessing member: {e}")
+        
+        # Test pod relationship
+        try:
+            print(f"Pod: {record.pod}")
+            print(f"Pod label: {record.pod.podlabel}")
+            print(f"Pod number: {record.pod.podNumber}")
+        except Exception as e:
+            print(f"Error accessing pod: {e}")
+
+        print("---")
+        '''
+    return render_template('accounting/list_unbilled.html', accounting_records=accounting_records)
+
+@app.route('/accounting/createbilling', methods=['GET', 'POST'])
+def create_billing_file():
+    # Logic for creating a billing file goes here
+    # Query to sum accAmount for each accMember where accBillingDate is NULL
+    results = (
+        db.session.query(
+            Accounting.accMember,
+            func.sum(Accounting.accAmount).label('total_amount'),
+            Member.name,
+            Member.firstname
+        )
+        .join(Member, Accounting.accMember == Member.id)
+        .filter(Accounting.accBillingDate.is_(None))
+        .group_by(Accounting.accMember, Member.name, Member.firstname)
+        .all()
+    )
+    
+    # Calculate grand total
+    grandtotal = 0
+    billing_data = []
+    current_datetime = datetime.now().strftime("%Y-%m-%d-%H-%M")
+    decomptefilename = f"decompte-{current_datetime}.csv"
+    DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
+    decomptefilepath = os.path.join(DATA_DIR, decomptefilename)
+    print(decomptefilename)
+    csv_data = [["Nom", "Prénom", "Montant"]]
+    for result in results:
+        grandtotal += result.total_amount
+        billing_data.append({
+            'member_id': result.accMember,
+            'name': result.name,
+            'firstname': result.firstname,
+            'total_amount': result.total_amount
+        })
+        csv_data.append([result.name, result.firstname, round(result.total_amount,2)])
+        #print(f"Member ID: {result.accMember}, Name: {result.name} {result.firstname}, Total Amount: {result.total_amount}")
+    
+    # generate CSV file
+    with open(decomptefilepath, 'w', newline='') as csv_file:
+        csv_writer = csv.writer(csv_file, delimiter=';')
+        csv_writer.writerows(csv_data)
+    
+    # Render the billing template instead of returning a dictionary
+
+    # Update all records where accBillingDate is NULL with the current date
+    #current_date = datetime.now().strftime('%Y-%m-%d')
+    current_date = datetime.now().date()
+    stmt = (
+        update(Accounting)
+        .where(Accounting.accBillingDate.is_(None))
+        .values(accBillingDate=current_date)
+    )
+    db.session.execute(stmt)
+    db.session.commit()
+    return render_template('accounting/create_billing.html', 
+                         billing_data=billing_data, 
+                         grandtotal=grandtotal,
+                         filename=decomptefilename)
+
+@app.route('/download/<path:filename>')
+def download_file(filename):
+    print(filename)
+    print("Current working directory:", os.getcwd())
+    DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
+    print(os.path.join(DATA_DIR, filename))
+    return send_from_directory(DATA_DIR, filename, as_attachment=True)
+
+@app.route('/accounting/file_list', methods=['GET'])
+def file_list():
+    """Display a list of files available for download"""
+    try:
+        files = []
+        DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
+        
+        # Get all files from the folder
+        for filename in os.listdir(DATA_DIR):
+            file_path = os.path.join(DATA_DIR, filename)
+            if os.path.isfile(file_path):  # Only include files, not directories
+                file_info = {
+                    'name': filename,
+                    'size': os.path.getsize(file_path),
+                    'modified': os.path.getmtime(file_path)
+                }
+                files.append(file_info)
+        
+        # Sort files by name
+        files.sort(key=lambda x: x['name'].lower())
+        
+        return render_template('accounting/file_list.html', files=files)
+    
+    except FileNotFoundError:
+        return render_template('accounting/file_list.html', files=[], error="Download folder not found")
 
 @app.route('/', methods=['GET'])
 def menu():

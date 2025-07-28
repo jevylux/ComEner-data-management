@@ -19,9 +19,15 @@
     form.accPod(class="form-select") }}
   </div>
   <div class="mb-3">
+    {{ form.accSGId.label(class="form-label") }} {{
+    form.accSGId(class="form-select") }}
+  <div class="mb-3">
     {{ form.accAmount.label(class="form-label") }} {{
     form.accAmount(class="form-control") }}
   </div>
+  <div class="mb-3">
+    {{ form.accBillingDate.label(class="form-label") }} {{
+    form.accBillingDate(class="form-control") }}
   <button type="submit" class="btn btn-primary">Submit</button>
   <a href="{{ url_for('list_accounting') }}" class="btn btn-secondary"
     >Cancel</a
