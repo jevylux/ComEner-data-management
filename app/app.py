@@ -483,8 +483,6 @@ def create_accounting():
     form.accMember.choices = [(m.id, f"{m.firstname} {m.name}") for m in Member.query.all()]
     form.accPod.choices = [(p.podsID, f"{p.podlabel} {p.podNumber}") for p in Pod.query.all()]
     form.accSGId.choices = [(sg.sgID, sg.sgName) for sg in SharingGroup.query.all()]
-    flash(form.validate_on_submit())
-    flash(form.errors)
     if form.validate_on_submit():
         accounting = Accounting(
             accYear=form.accYear.data,
