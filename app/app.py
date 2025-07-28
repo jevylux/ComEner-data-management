@@ -663,7 +663,8 @@ def file_list():
                 files.append(file_info)
         
         # Sort files by name
-        files.sort(key=lambda x: x['name'].lower())
+        #files.sort(key=lambda x: x['name'].lower())
+        files.sort(key=lambda x: x['modified'], reverse=True)
         
         return render_template('accounting/file_list.html', files=files)
     
